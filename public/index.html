@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Socket</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            Helvetica, Arial, sans-serif;
+        }
+
+        #form-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        #form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #input {
+            border: none;
+            padding: 0.5rem;
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form > button {
+            background: #333;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            outline: none;
+            color: #fff;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: none; /* Hide by default */
+        }
+
+        #messages > li {
+            padding: 0.5rem 1rem;
+        }
+
+        #messages > li:nth-child(odd) {
+            background: #efefef;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-100 min-h-screen">
+
+<h1 class="text-3xl font-bold mb-4">Web Socket</h1>
+
+<!-- Modal Trigger Button -->
+<button onclick="openFormModal()" class="bg-blue-500 text-white p-2 rounded-md">Join Chat</button>
+
+<!-- Form Modal -->
+<div id="form-modal">
+    <div id="form" class="bg-white p-6 rounded-lg shadow-md">
+        <label for="username" class="block text-sm font-semibold mb-1">Username</label>
+        <input id="username" name="username" autocomplete="off" class="w-full border border-gray-300 p-2 mb-2 rounded-md" />
+
+        <label for="phone_number" class="block text-sm font-semibold mb-1">Phone Number</label>
+        <input id="phone_number" name="phone_number" autocomplete="off" class="w-full border border-gray-300 p-2 mb-2 rounded-md" />
+
+        <label for="roomID" class="block text-sm font-semibold mb-1">Room ID</label>
+        <input id="roomID" name="roomID" autocomplete="off" class="w-full border border-gray-300 p-2 mb-4 rounded-md" />
+
+        <button onclick="closeFormModal()" class="bg-blue-500 text-white p-2 rounded-md">Join</button>
+    </div>
+</div>
+
+<h2 class="text-lg font-semibold mb-2">Room ID: <span id="room-id-value"></span></h2>
+
+<ul id="messages" class="list-none p-0">
+    <!-- ... existing styles for messages ... -->
+</ul>
+
+<form id="chat-form" class="fixed bottom-0 left-0 right-0 bg-opacity-25 bg-gray-800 p-4 flex items-center">
+    <input id="input" autocomplete="off" class="flex-grow border border-gray-300 p-2 rounded-md focus:outline-none" />
+    <button type="submit" class="ml-2 bg-blue-500 text-white p-2 rounded-md">Send</button>
+</form>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const formModal = document.getElementById("form-modal");
+    const form = document.getElementById("form");
+    const chatForm = document.getElementById("chat-form");
+    const input = document.getElementById("input");
+    const messages = document.getElementById("messages");
+    const username = document.getElementById("username");
+    const phone_number = document.getElementById("phone_number");
+    const roomID = document.getElementById("roomID");
+    const roomIDValue = document.getElementById("room-id-value");
+
+    function openFormModal() {
+        formModal.style.display = "flex";
+    }
+
+    function closeFormModal() {
+        if (username.value && phone_number.value && roomID.value) {
+            // Show the chat box after the form in the modal is submitted
+            formModal.style.display = "none";
+            messages.style.display = "block";
+            socket.emit("join", username.value, phone_number.value, roomID.value);
+            username.value = "";
+            phone_number.value = "";
+            roomIDValue.innerHTML = roomID.value;
+            roomID.value = "";
+        }
+    }
+
+    const socket = io();
+    socket.on("connect", () => {
+        console.log(socket.id);
+    });
+
+    chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (input.value) {
+            socket.emit("new message", input.value);
+            input.value = "";
+        }
+    });
+
+    socket.on("chat message", (msg) => {
+        const item = document.createElement("li");
+        item.textContent = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+ 
+</script>
+</body>
+</html>
