@@ -42,9 +42,9 @@ io.on('connection', (socket) => {
 socket.on('new message', (data) => {
     const { phone_number,username, roomId} = user[socket.id]
     // send to to all clients except sender client\
-    socket.broadcast.to(roomId).emit('chat message', `${username}:${data}`)
+    socket.broadcast.to(roomId).emit('incoming message', `${username}:${data}`)
     //send to the sender client
-    socket.emit('chat message', `${data}`)
+    socket.emit('sent message', `${data}`)
     // io.to(roomId).emit("chat message", `${username}:${data}`)
   });
 

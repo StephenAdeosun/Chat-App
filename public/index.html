@@ -61,13 +61,13 @@
             display: none; /* Hide by default */
         }
 
-        #messages > li {
+        /* #messages > li {
             padding: 0.5rem 1rem;
-        }
+        } */
 
-        #messages > li:nth-child(odd) {
+        /* #messages > li:nth-child(odd) {
             background: #efefef;
-        }
+        } */
     </style>
 </head>
 
@@ -79,7 +79,7 @@
 <button onclick="openFormModal()" class="bg-blue-500 text-white p-2 rounded-md">Join Chat</button>
 
 <!-- Form Modal -->
-<div id="form-modal">
+<!-- <div id="form-modal">
     <div id="form" class="bg-white p-6 rounded-lg shadow-md">
         <label for="username" class="block text-sm font-semibold mb-1">Username</label>
         <input id="username" name="username" autocomplete="off" class="w-full border border-gray-300 p-2 mb-2 rounded-md" />
@@ -92,15 +92,36 @@
 
         <button onclick="closeFormModal()" class="bg-blue-500 text-white p-2 rounded-md">Join</button>
     </div>
-</div>
+</div> -->
+<div id="form-modal">
+    <div id="form" class="bg-white p-6 rounded-lg shadow-md">
+        <!-- Close button -->
+        <button onclick="closeFormModalx()" class="absolute top-10 right-10 text-gray-500 hover:text-gray-700 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+            <!-- error message -->
+            <div id="error-message" class="text-red-500 text-sm mb-4"></div>
+        <label for="username" class="block text-sm font-semibold mb-1">Username</label>
+        <input id="username" name="username" autocomplete="off" class="w-full border border-gray-300 p-2 mb-2 rounded-md" required/>
 
+        <label for="phone_number" class="block text-sm font-semibold mb-1">Phone Number</label>
+        <input id="phone_number" name="phone_number" autocomplete="off" class="w-full border border-gray-300 p-2 mb-2 rounded-md" required/>
+
+        <label for="roomID" class="block text-sm font-semibold mb-1">Room ID</label>
+        <input id="roomID" name="roomID" autocomplete="off" class="w-full border border-gray-300 p-2 mb-4 rounded-md" required/>
+
+        <button onclick="closeFormModal()" type="submit" class="bg-blue-500 text-white p-2 rounded-md">Join</button>
+    </div>
+</div>
 <h2 class="text-lg font-semibold mb-2">Room ID: <span id="room-id-value"></span></h2>
 
 <ul id="messages" class="list-none p-0">
     <!-- ... existing styles for messages ... -->
 </ul>
 
-<form id="chat-form" class="fixed bottom-0 left-0 right-0 bg-opacity-25 bg-gray-800 p-4 flex items-center">
+<form id="chat-form" class="fixed bottom-0 left-0 right-0 bg-opacity-25 bg-gray-200 p-4 flex items-center">
     <input id="input" autocomplete="off" class="flex-grow border border-gray-300 p-2 rounded-md focus:outline-none" />
     <button type="submit" class="ml-2 bg-blue-500 text-white p-2 rounded-md">Send</button>
 </form>
@@ -116,6 +137,7 @@
     const phone_number = document.getElementById("phone_number");
     const roomID = document.getElementById("roomID");
     const roomIDValue = document.getElementById("room-id-value");
+    const errorMessage = document.getElementById("error-message");
 
     function openFormModal() {
         formModal.style.display = "flex";
@@ -131,10 +153,21 @@
             phone_number.value = "";
             roomIDValue.innerHTML = roomID.value;
             roomID.value = "";
+
+        }
+        else {
+            errorMessage.innerHTML = "Please fill all the fields";
         }
     }
+    function closeFormModalx() {
 
-    const socket = io('https://chat-app3-i19c.onrender.com/');
+            formModal.style.display = "none";
+            messages.style.display = "block";
+           
+        
+    }
+
+    const socket = io('https://real-time-chatt-app.onrender.com/');
     socket.on("connect", () => {
         console.log(socket.id);
     });
@@ -153,6 +186,22 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
     });
+
+    socket.on("sent message", (msg) => {
+        const item = document.createElement("li");
+        item.className = "text-right text-red-500 p-2 rounded-md  ";
+        item.textContent = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+    socket.on("incoming message", (msg) => {
+        const item = document.createElement("li");
+        item.className = "text-left bg-blue-500 text-white p-2 rounded-md max-w-xs ";
+        item.textContent = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+
  
 </script>
 </body>
