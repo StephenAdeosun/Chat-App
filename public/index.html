@@ -168,6 +168,7 @@
     }
 
     const socket = io('https://real-time-chatt-app.onrender.com/');
+    // const socket = io('http://localhost:3000/');
     socket.on("connect", () => {
         console.log(socket.id);
     });
@@ -189,14 +190,14 @@
 
     socket.on("sent message", (msg) => {
         const item = document.createElement("li");
-        item.className = "text-right text-red-500 p-2 rounded-md  ";
+        item.className = "text-right text-red-500 p-2 rounded-md text-[90px] font-extrabold";
         item.textContent = msg;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
     });
     socket.on("incoming message", (msg) => {
         const item = document.createElement("li");
-        item.className = "text-left bg-blue-500 text-white p-2 rounded-md max-w-xs ";
+        item.className = "text-left text-blue-500 text-[30px] text-white p-2 rounded-md max-w-xs  font-extrabold";
         item.textContent = msg;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
